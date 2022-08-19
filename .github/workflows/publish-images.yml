@@ -3,8 +3,10 @@ name: Publish Tackle 2 Operator Images
 on:
   workflow_dispatch:
   push:
+    branches:
+      - '*'
 env:
-  SUPPORTED_CHANNELS: alpha
+  SUPPORTED_CHANNELS: ""
   REGISTRY: quay.io
   IMAGE_NAME: ${{ github.repository }}
   BUNDLE_SUFFIX: bundle
@@ -13,6 +15,9 @@ env:
 jobs:
   multiarch-operator:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: add checkout action...
         uses: actions/checkout@v2
@@ -81,13 +86,13 @@ jobs:
 
       - name: Get latest bundle images
         run: |
-          git fetch -q origin
+          git fetch -q origin --unshallow
           BUNDLES=""
           for i in $(echo $SUPPORTED_CHANNELS | sed "s/,/ /g"); do
-            BUNDLES=$(echo $BUNDLES,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ env.BUNDLE_SUFFIX }}:$(git branch -r --contains $i | tail -n 1 | grep release | cut -d '/' -f 2 ) | sed 's/^,//')
+            BUNDLES=$(echo $BUNDLES,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ env.BUNDLE_SUFFIX }}:$(git branch -r --contains $i | tail -n 1 | cut -d '/' -f 2 ) | sed 's/^,//')
           done
           BUNDLES=$BUNDLES,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ env.BUNDLE_SUFFIX }}:latest
-          echo "##[set-output name=bundles]$(echo $BUNDLES)"
+          echo "##[set-output name=bundles]$(echo $BUNDLES | sed 's/^,//')"
         id: get_bundles
 
       - name: Run OPM
