@@ -1,0 +1,11 @@
+name: Set up minikube and deploy operator
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+jobs:
+  build-operator-container:
+    uses: jaydipgabani/tackle2-actions/.github/workflows/get-minikube.yml@main
+    secrets: inherit
