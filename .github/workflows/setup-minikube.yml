@@ -6,6 +6,10 @@ on:
     branches:
       - '*'
 jobs:
-  build-operator-container:
-    uses: jaydipgabani/tackle2-actions/.github/workflows/get-minikube.yml@main
-    secrets: inherit
+  install-minikube-and-tackle-operator:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get minikube
+      uses: JaydipGabani/tackle2-actions/get-minikube@main
+    - name: Install tackle
+      uses: JaydipGabani/tackle2-actions/install-tackle@main
